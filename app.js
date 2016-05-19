@@ -1,5 +1,7 @@
-request = require('request-json');
+var request = require('request-json');
 var client = request.createClient('http://89.96.234.233');
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database('database.db');
 client.get('/aria-json/exported/aria/data.json', function(err, res, body) {
   //guardo dentro l'oggetto json
   for (var i = 0; i < body.stazioni.length; i++) {
@@ -9,8 +11,8 @@ client.get('/aria-json/exported/aria/data.json', function(err, res, body) {
     //console.log(codseqst + misurazioni);
     //controllo se l'array contiene misurazioni
     if (misurazione.length > 0) {
-      console.log("stazione: " +codseqst +" "+misurazione.length+ " ////// "+ misurazione[0].ozono);
-      if (misurazione[0].ozono !== "undefined") {
+      console.log("stazione: " +codseqst +" "+misurazione.length+ " ////// "+ typeof misurazione[0].ozono);
+      if (typeof misurazione[0].ozono !== "undefined") {
         console.log("OZONO");
         for (var z = 0; z < misurazione[0].ozono.length; z++) {
           data = misurazione[0].ozono[z].data;
@@ -25,7 +27,7 @@ client.get('/aria-json/exported/aria/data.json', function(err, res, body) {
           console.log("Data: " +data+ " misurazione:" +mis);
         }
       }
-      if (misurazione[1].pm10 !== "undefined") {
+      if (typeof misurazione[1] !== "undefined") {
           console.log("PM10");
           for (var w = 0; w < misurazione[1].pm10.length; w++) {
             data = misurazione[1].pm10[w].data;
