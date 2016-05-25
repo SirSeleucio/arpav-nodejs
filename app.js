@@ -18,6 +18,10 @@ client.get('/aria-json/exported/aria/data.json', function(err, res, body) {
           data = misurazione[0].ozono[z].data;
           mis = misurazione[0].ozono[z].mis;
           console.log("Data: " +data+ " misurazione:" +mis+ " mg/m3 e nr " + z);
+          db.serialize(function(){
+            db.run("INSERT INTO Dati(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+codseqst+"', 'OZONO', '"+data+"','"+mis+"')")
+          });
+
         }
       }else{
         console.log("PM10");
@@ -40,4 +44,5 @@ client.get('/aria-json/exported/aria/data.json', function(err, res, body) {
       console.log("stazione " + codseqst + " non presenta misurazioni");
     }
   }
+  db.close();
 });
