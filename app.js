@@ -31,10 +31,28 @@ client.get('/aria-json/exported/aria/data.json', function(err, res, body) {
       for (var z = 0; z < ozono.length; z++) {
         dataMisurazione = ozono[z].data;
         misurazione = ozono[z].mis;
-        if (!isEmpty(misurazione)) {
+        if (!isEmpty(misurazione) && trueStationCode == 500000106) {
           db.serialize(function () {
-            //db.run("SELECT EXISTS(SELECT 1 FROM DatiBis WHERE tipoMisurazione='OZONO' AND idStazione='"+trueStationCode+"' AND dataMisurazione='"+dataMisurazione+"' LIMIT 1) AS KAWA");
-            db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')")
+            db.run("INSERT or IGNORE INTO Bassano (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
+          });
+        }
+        if (!isEmpty(misurazione) && trueStationCode == 500015304) {
+          db.serialize(function () {
+            db.run("INSERT or IGNORE INTO Asiago (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
+          });
+        }
+        if (!isEmpty(misurazione) && trueStationCode == 500000197) {
+          db.serialize(function () {
+            db.run("INSERT or IGNORE INTO Padova (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
+          });
+        }
+        if (!isEmpty(misurazione) && trueStationCode == 500000156) {
+          db.serialize(function () {
+            db.run("INSERT or IGNORE INTO Mestre (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
           });
         }
       }
