@@ -3,47 +3,59 @@ var client = request.createClient('http://89.96.234.233');
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('database.db');
 client.get('/aria-json/exported/aria/data.json', function(err, res, body) {
-  //guardo dentro l'oggetto json
+  /**
+  *Bassano: 500000106
+  *Asiago, cima Ekar: 500015304
+  *Padova, Mandria: 500000197
+  *Mestre, Parco bissuola: 500000156
+  */
+  //Thx StackOverflow!
+  var stazioni = [500000106, 500015304, 500000197,500000156];
+  function inArray(needle, haystack) {
+    var length = haystack.length;
+    for(var i = 0; i < length; i++) {
+        if(haystack[i] == needle) return true;
+    }
+    return false;
+  }
+  function isEmpty(str) {
+    return (!str || 0 === str.length);
+  }
   for (var i = 0; i < body.stazioni.length; i++) {
-    //ricavo codseqst e misurazioni
-    var codseqst = body.stazioni[i].codseqst;
-    var misurazione = body.stazioni[i].misurazioni;
-    //console.log(codseqst + misurazioni);
-    //controllo se l'array contiene misurazioni
-    if (misurazione.length > 0) {
-      console.log("stazione: " +codseqst +" "+misurazione.length+ " ////// "+ typeof misurazione[0].ozono);
-      if (typeof misurazione[0].ozono !== "undefined") {
-        console.log("OZONO");
-        for (var z = 0; z < misurazione[0].ozono.length; z++) {
-          data = misurazione[0].ozono[z].data;
-          mis = misurazione[0].ozono[z].mis;
-          console.log("Data: " +data+ " misurazione:" +mis+ " mg/m3 e nr " + z);
-          db.serialize(function(){
-            //TODO: cercare nella tabella se esiste la misurazione, inserire solo i dati delle stazioni di Bassano, Mestre, Padova, Asiago 
-            db.run("INSERT INTO Dati(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+codseqst+"', 'OZONO', '"+data+"','"+mis+"')")
+    var codiceStazione = body.stazioni[i].codseqst;
+    if (inArray(codiceStazione, stazioni)) {
+      var trueStationCode = body.stazioni[i].codseqst;
+      var misurations = body.stazioni[i].misurazioni;
+      var ozono = misurations[0].ozono;
+      console.log(trueStationCode);
+      for (var z = 0; z < ozono.length; z++) {
+        dataMisurazione = ozono[z].data;
+        misurazione = ozono[z].mis;
+        if (!isEmpty(misurazione) && trueStationCode == 500000106) {
+          db.serialize(function () {
+            db.run("INSERT or IGNORE INTO Bassano (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
           });
-
         }
-      }else{
-        console.log("PM10");
-        for (var y = 0; y < misurazione[0].pm10.length; y++) {
-          data = misurazione[0].pm10[y].data;
-          mis = misurazione[0].pm10[y].mis;
-          console.log("Data: " +data+ " misurazione:" +mis);
+        if (!isEmpty(misurazione) && trueStationCode == 500015304) {
+          db.serialize(function () {
+            db.run("INSERT or IGNORE INTO Asiago (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
+          });
+        }
+        if (!isEmpty(misurazione) && trueStationCode == 500000197) {
+          db.serialize(function () {
+            db.run("INSERT or IGNORE INTO Padova (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
+          });
+        }
+        if (!isEmpty(misurazione) && trueStationCode == 500000156) {
+          db.serialize(function () {
+            db.run("INSERT or IGNORE INTO Mestre (tipoMisurazione,dataMisurazione,misurazione) VALUES ('OZONO','"+dataMisurazione+"','"+misurazione+"');");
+            //db.run("INSERT INTO DatiBis(idStazione, tipoMisurazione, dataMisurazione, Misurazione) VALUES('"+trueStationCode+"', 'OZONO', '"+dataMisurazione+"','"+misurazione+"')");
+          });
         }
       }
-      if (typeof misurazione[1] !== "undefined") {
-          console.log("PM10");
-          for (var w = 0; w < misurazione[1].pm10.length; w++) {
-            data = misurazione[1].pm10[w].data;
-            mis = misurazione[1].pm10[w].mis;
-            console.log("Data: " +data+ " misurazione:" +mis);
-          }
-        }
-      console.log("stazione " + codseqst + " misurazioni: " + misurazione);
-    }else {
-      console.log("stazione " + codseqst + " non presenta misurazioni");
     }
   }
-  db.close();
 });
